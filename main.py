@@ -9,14 +9,11 @@ from telegram.ext import (
     ContextTypes, ConversationHandler
 )
 
-# Game states
 ASK_PIN, ASK_LUCKY_NUMBER, ASK_REPLAY = range(3)
 
-# In-memory storage
 user_data = {}
 revenue_data = {"total_revenue": 0, "reward_pool": 0, "players": []}
 
-# Load persistent data
 def load_data():
     global user_data, revenue_data
     if os.path.exists("user_data.json"):
@@ -26,21 +23,18 @@ def load_data():
         with open("revenue_data.json", "r") as f:
             revenue_data = json.load(f)
 
-# Save data
 def save_data():
     with open("user_data.json", "w") as f:
         json.dump(user_data, f)
     with open("revenue_data.json", "w") as f:
         json.dump(revenue_data, f)
 
-# Start or play
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     user_data[user_id] = {"paid": False}
     await update.message.reply_text("Welcome to the Game of Chance! Please enter your PIN to pay KES 50.")
     return ASK_PIN
 
-# Handle PIN
 async def handle_pin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     user_data[user_id]["paid"] = True
@@ -51,7 +45,6 @@ async def handle_pin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Payment received! Choose your lucky number (1, 2, or 3):")
     return ASK_LUCKY_NUMBER
 
-# Handle lucky number
 async def handle_lucky_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     try:
@@ -72,7 +65,6 @@ async def handle_lucky_number(update: Update, context: ContextTypes.DEFAULT_TYPE
     await check_rewards(update)
     return ConversationHandler.END
 
-# Handle replay
 async def handle_replay(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.text.lower() == "yes":
         await update.message.reply_text("Please enter your PIN to pay KES 50.")
@@ -81,7 +73,6 @@ async def handle_replay(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Thanks for playing!")
         return ConversationHandler.END
 
-# Reward logic
 async def check_rewards(update: Update):
     if revenue_data["reward_pool"] >= 5000:
         recipients = random.sample(revenue_data["players"], min(len(revenue_data["players"]), random.randint(2, 10)))
@@ -95,12 +86,10 @@ async def check_rewards(update: Update):
         revenue_data["players"] = []
         save_data()
 
-# Cancel
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Game cancelled.")
     return ConversationHandler.END
 
-# Run bot
 async def run_bot():
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     load_data()
@@ -124,6 +113,5 @@ async def run_bot():
     app.add_handler(conv_handler)
     await app.run_polling()
 
-# Entry point
 if __name__ == "__main__":
     asyncio.run(run_bot())
