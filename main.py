@@ -124,7 +124,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Run bot in Colab
 async def run_bot():
     load_data()
-    bot_token = os.environ["BOT_TOKEN"]  # Read from environment variable
+    bot_token = os.environ["8596733119:AAFVU6glplXm3UKsxur0D1gfJVNxF2uCVsc"]  # Read from environment variable
     app = ApplicationBuilder().token(bot_token).build()
 
     conv_handler = ConversationHandler(
